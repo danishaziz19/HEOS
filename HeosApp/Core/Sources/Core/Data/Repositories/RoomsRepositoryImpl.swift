@@ -83,11 +83,12 @@ public actor RoomsRepositoryImpl: RoomsRepository {
     public func selectedRoomID() -> Int? {
         selectedID
     }
-
-    public func togglePlayback(roomID: Int) throws {
+    
+    public func togglePlayback(roomID: Int) async throws {
         guard let index = rooms.firstIndex(where: { $0.id == roomID }) else {
             throw RoomsError.roomNotFound
         }
+
         rooms[index] = rooms[index].togglingPlayback()
     }
 

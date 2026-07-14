@@ -29,6 +29,17 @@ struct RoomsView: View {
                     .onTapGesture {
                         Task { await viewModel.selectRoom(room.id) }
                     }
+                    // Without this, tagging the row itself with an
+                    // accessibilityIdentifier collapses the whole subtree
+                    // into ONE accessibility element by default, which
+                    // silently swallows the playback-indicator Image's own
+                    // identifier/label inside RoomRow — exactly what broke
+                    // the UI test querying app.images["room_101_..."]. This
+                    // keeps the row addressable as a container (for
+                    // "room_row_101") while still exposing its children
+                    // (the playback indicator) as independently queryable
+                    // accessibility elements.
+                    .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("room_row_\(room.id)")
             }
             .accessibilityIdentifier("roomsList")

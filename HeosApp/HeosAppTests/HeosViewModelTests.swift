@@ -31,14 +31,29 @@ private struct MockTogglePlaybackUseCase: TogglePlaybackUseCase {
     func execute(roomID: Int) async throws { if let error { throw error } }
 }
 
-private actor MockSetDataSourceModeUseCase: SetDataSourceModeUseCase {
-    private(set) var lastMode: DataSourceMode?
-    func execute(mode: DataSourceMode) async { lastMode = mode }
+// These two mocks share one backing store rather than being independent
+// test doubles. `setDataSourceMode` and `getCurrentDataSourceMode` are
+// separate use cases in production too, but they both read/write the
+// SAME repository state — a test double that doesn't preserve that
+// (e.g. two disconnected mocks, one hardcoded to always report .cloud)
+// would pass or fail for the wrong reason, and specifically can't catch
+// the real bug this test guards against: HeosViewModel.refresh()
+// re-reading getCurrentDataSourceMode() after a mode switch so the
+// Settings toggle stays in sync with the repository's actual state.
+private actor MockDataSourceModeStore {
+    private var mode: DataSourceMode = .cloud
+    func set(_ mode: DataSourceMode) { self.mode = mode }
+    func get() -> DataSourceMode { mode }
+}
+
+private struct MockSetDataSourceModeUseCase: SetDataSourceModeUseCase {
+    let store: MockDataSourceModeStore
+    func execute(mode: DataSourceMode) async { await store.set(mode) }
 }
 
 private struct MockGetCurrentDataSourceModeUseCase: GetCurrentDataSourceModeUseCase {
-    let mode: DataSourceMode
-    func execute() async -> DataSourceMode { mode }
+    let store: MockDataSourceModeStore
+    func execute() async -> DataSourceMode { await store.get() }
 }
 
 @MainActor
@@ -54,14 +69,16 @@ final class HeosViewModelTests: XCTestCase {
         selectedID: Int? = nil,
         togglePlaybackError: Error? = nil
     ) -> HeosViewModel {
-        HeosViewModel(
+        let modeStore = MockDataSourceModeStore()
+
+        return HeosViewModel(
             getRooms: MockGetRoomsUseCase(result: .success(rooms)),
             getCachedRooms: MockGetCachedRoomsUseCase(rooms: rooms),
             selectRoomUseCase: MockSelectRoomUseCase(),
             getSelectedRoomID: MockGetSelectedRoomIDUseCase(id: selectedID),
             togglePlaybackUseCase: MockTogglePlaybackUseCase(error: togglePlaybackError),
-            setDataSourceMode: MockSetDataSourceModeUseCase(),
-            getCurrentDataSourceMode: MockGetCurrentDataSourceModeUseCase(mode: .cloud)
+            setDataSourceMode: MockSetDataSourceModeUseCase(store: modeStore),
+            getCurrentDataSourceMode: MockGetCurrentDataSourceModeUseCase(store: modeStore)
         )
     }
 

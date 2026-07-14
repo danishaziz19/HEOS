@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FFF3C922300614E1008B94F6 /* Core in Frameworks */ = {isa = PBXBuildFile; productRef = FFF3C921300614E1008B94F6 /* Core */; };
+		FFF3C923300614E1008B94F7 /* Core in Frameworks */ = {isa = PBXBuildFile; productRef = FFF3C924300614E1008B94F8 /* Core */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFF3C923300614E1008B94F7 /* Core in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +145,7 @@
 			);
 			name = HeosAppTests;
 			packageProductDependencies = (
+				FFF3C924300614E1008B94F8 /* Core */,
 			);
 			productName = HeosAppTests;
 			productReference = FFF3C8EC3005CEAD008B94F6 /* HeosAppTests.xctest */;
@@ -626,6 +629,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		FFF3C921300614E1008B94F6 /* Core */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Core;
+		};
+		FFF3C924300614E1008B94F8 /* Core */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Core;
 		};
