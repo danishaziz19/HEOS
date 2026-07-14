@@ -1,0 +1,9 @@
+{
+	"Devices": [{
+		"ID": 1,
+		"Name": "Bedroom"
+	}, {
+		"ID": 2,
+		"Name": "Lounge"
+	}]
+}

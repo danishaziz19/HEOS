@@ -1,0 +1,12 @@
+{
+	"Devices": [{
+		"ID": 101,
+		"Name": "Office (Mock)"
+	}, {
+		"ID": 102,
+		"Name": "Garage (Mock)"
+	}, {
+		"ID": 103,
+		"Name": "Studio (Mock)"
+	}]
+}

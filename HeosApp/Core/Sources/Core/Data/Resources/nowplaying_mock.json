@@ -1,0 +1,15 @@
+{
+	"Now Playing": [{
+		"Device ID": 101,
+		"Track Name": "Mock Track One",
+		"Artist Name": "Mock Artist A"
+	}, {
+		"Device ID": 102,
+		"Track Name": "Mock Track Two",
+		"Artist Name": "Mock Artist B"
+	}, {
+		"Device ID": 103,
+		"Track Name": "Mock Track Three",
+		"Artist Name": "Mock Artist C"
+	}]
+}
