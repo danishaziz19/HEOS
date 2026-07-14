@@ -1,15 +1,7 @@
 import Foundation
 
-/// Backs the "Mock Data" switch in Settings. Reads two bundled JSON
-/// files matching the exact same schema as the real endpoints — using
-/// the same DTOs and decoder as `RemoteRoomsDataSource` means both
-/// sources are exercised through identical decode logic, and a bug in
-/// decoding would show up in mock mode just as it would in cloud mode,
-/// rather than mock mode using some entirely separate, unverified path.
-///
-/// Explicitly declared `Sendable` for the same reason as
-/// `RemoteRoomsDataSource` — immutable stored state, made visible
-/// rather than left to inference.
+/// Backs the "Mock Data" switch in Settings. Reads bundled JSON using
+/// the same DTOs and decoder as `RemoteRoomsDataSource`.
 final class LocalRoomsDataSource: RoomsDataSource, Sendable {
     private let bundle: Bundle
 

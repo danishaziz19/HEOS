@@ -1,12 +1,8 @@
 import Foundation
 
-// These match the ACTUAL response shape from the two provided endpoints
-// exactly, including the inconsistent key naming (PascalCase on one
-// endpoint, a key containing a literal space on the other). That's a
-// real quirk of this API, not a typo on my part — see the CodingKeys
-// below. Kept as two independent DTO trees mirroring the two
-// independent endpoints; joining them into one cohesive `Room` only
-// happens in `RoomMapper`, never here.
+// Matches the actual API shape, including the space in "Now Playing"
+// and inconsistent key casing between the two endpoints. Joined into
+// one Room only in RoomMapper, not here.
 
 struct DevicesResponseDTO: Decodable {
     let devices: [DeviceDTO]
@@ -30,8 +26,6 @@ struct NowPlayingResponseDTO: Decodable {
     let nowPlaying: [NowPlayingDTO]
 
     enum CodingKeys: String, CodingKey {
-        // Yes, the actual key from the API is "Now Playing" with a
-        // literal space in it.
         case nowPlaying = "Now Playing"
     }
 }
