@@ -27,7 +27,9 @@ final class RoomsRepositoryImplTests: XCTestCase {
         let rooms = try await sut.getRooms()
 
         XCTAssertEqual(rooms.first?.name, "Mock Room")
-      //  XCTAssertEqual(await sut.currentDataSourceMode(), .mockData)
+
+        let mode = await sut.currentDataSourceMode()
+        XCTAssertEqual(mode, .mockData)
     }
 
     func test_selectRoom_persistsSelection() async {

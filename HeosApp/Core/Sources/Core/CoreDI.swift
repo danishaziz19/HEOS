@@ -12,7 +12,6 @@ public enum CoreDI {
     public static func makeRepository(
         initialMode: DataSourceMode
     ) -> RoomsRepository {
-
         RoomsRepositoryImpl(
             cloudSource: RemoteRoomsDataSource(),
             mockSource: LocalRoomsDataSource(),

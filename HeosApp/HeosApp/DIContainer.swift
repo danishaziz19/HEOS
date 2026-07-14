@@ -35,6 +35,7 @@ struct DIContainer {
             repository: CoreDI.makeRepository(initialMode: initialMode)
         )
     }
+    
 
     @MainActor
     func makeHeosViewModel() -> HeosViewModel {
