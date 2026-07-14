@@ -1,7 +1,7 @@
 import XCTest
 
 /// UI tests run against the actual app, launched with "--uitesting" so
-/// DIContainer.live() forces Mock Data mode (see DIContainer.swift) —
+/// DIContainer.make() forces Mock Data mode (see DIContainer.swift) —
 /// deterministic, known content ("Office (Mock)" etc.), no dependency on
 /// the live S3 endpoint being reachable during a test run. This mirrors
 /// the same reasoning as a real HEOS test suite not wanting to depend on

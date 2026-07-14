@@ -12,7 +12,7 @@ import Core
 struct HeosApp: App {
     // Composition root. One HeosViewModel instance, shared across all
     // three tabs — see the doc comment on HeosViewModel for why.
-    @State private var viewModel = DIContainer.live().makeHeosViewModel()
+    @State private var viewModel = DIContainer.make().makeHeosViewModel()
 
     var body: some Scene {
         WindowGroup {

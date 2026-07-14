@@ -1,37 +1,19 @@
 import Foundation
 import Core
 
-/// One `@Observable` instance shared across all three tabs (constructed
-/// once in the composition root, passed to `RoomsView`, `NowPlayingView`,
-/// and `SettingsView` alike), rather than a separate ViewModel per tab.
-/// This is the single biggest architectural decision in this project and
-/// worth being able to defend directly:
+/// One `@Observable` instance shared across all three tabs, instead of
+/// a separate ViewModel per tab. Rooms, Now Playing, and Settings are
+/// three views over ONE piece of state (rooms, selection, data source),
+/// so sharing one instance keeps them in sync for free — SwiftUI
+/// re-renders any view reading a property that changed, regardless of
+/// which tab triggered it. Separate ViewModels would need their own
+/// sync mechanism (delegate, NotificationCenter, Combine) to achieve
+/// the same thing.
 ///
-/// **Why one shared ViewModel instead of three.** Rooms, Now Playing,
-/// and Settings aren't three independent screens — they're three views
-/// over ONE piece of app state: the list of rooms, which room is
-/// selected, and where that data comes from. If each tab had its own
-/// ViewModel, keeping them in sync (Rooms selection updating Now
-/// Playing; the Play/Pause button on Now Playing updating the Rooms
-/// list; the Settings toggle triggering every tab to refetch) would
-/// require some separate synchronization mechanism between them —
-/// a delegate, NotificationCenter, or a shared Combine publisher. With
-/// `@Observable`, sharing one instance gives that synchronization for
-/// free: SwiftUI already re-renders any view reading a property that
-/// changed, regardless of which tab triggered the change.
-///
-/// **Where this WOULDN'T be the right call**, and I'd want to be
-/// explicit about that boundary rather than pretend one shared
-/// ViewModel is always correct: if the app grew to the point where
-/// Now Playing needed genuinely independent state (e.g. a persistent
-/// mini-player surviving navigation, queue management, its own loading
-/// states unrelated to the Rooms list), I'd split it out and have each
-/// ViewModel subscribe to an `AsyncStream<[Room]>` exposed by the
-/// repository instead of sharing one object directly — same single
-/// source of truth at the Data layer, but presentation-layer boundaries
-/// that scale with feature ownership rather than one god-object. For
-/// this app's actual scope, that would be premature complexity for no
-/// real benefit.
+/// Would split this out if Now Playing ever needed genuinely
+/// independent state (a persistent mini-player, a queue) — each
+/// ViewModel would subscribe to an `AsyncStream<[Room]>` from the
+/// repository instead. Not needed at this app's scope.
 @MainActor
 @Observable
 final class HeosViewModel {
@@ -78,14 +60,8 @@ final class HeosViewModel {
 
     func refresh() async {
         viewState = .loading
-        // Sync the displayed toggle state from the repository's actual
-        // current mode, rather than only ever updating it from a direct
-        // user interaction. Without this, a mode set some other way
-        // (e.g. the launch-argument override used for UI testing, see
-        // HeosApp.swift) would leave the Settings toggle showing the
-        // wrong state even though the underlying data source was
-        // correct — a real bug I caught while adding UI tests, not a
-        // hypothetical one.
+        // Re-read the actual mode so the toggle stays correct even when
+        // mode was set some other way (e.g. --uitesting), not just from a direct tap.
         mockDataEnabled = await getCurrentDataSourceMode.execute() == .mockData
         do {
             rooms = try await getRooms.execute()
@@ -104,12 +80,8 @@ final class HeosViewModel {
         await selectRoomUseCase.execute(roomID: roomID)
     }
 
-    /// Re-entrant-safe the same way as the earlier repository-level
-    /// request coalescing: this can be called rapidly (button mashing on
-    /// Now Playing) and each call still resolves correctly, because the
-    /// actual mutation happens in the actor-isolated repository, not
-    /// here — this method just reflects the repository's cached state
-    /// back into `rooms` afterward.
+    /// Mutation happens in the actor-isolated repository; this just
+    /// reflects the cached state back into `rooms`.
     func togglePlayback() async {
         guard let selectedRoomID else { return }
         do {
