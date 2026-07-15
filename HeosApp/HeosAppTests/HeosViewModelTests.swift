@@ -2,10 +2,6 @@ import XCTest
 import Core
 @testable import HeosApp
 
-// NOTE: "HeosApp" must match your actual Xcode project's module name
-// (Target -> Build Settings -> Product Module Name). Rename this import
-// if you named the project differently.
-
 private struct MockGetRoomsUseCase: GetRoomsUseCase {
     var result: Result<[Room], Error>
     func execute() async throws -> [Room] { try result.get() }
@@ -31,15 +27,7 @@ private struct MockTogglePlaybackUseCase: TogglePlaybackUseCase {
     func execute(roomID: Int) async throws { if let error { throw error } }
 }
 
-// These two mocks share one backing store rather than being independent
-// test doubles. `setDataSourceMode` and `getCurrentDataSourceMode` are
-// separate use cases in production too, but they both read/write the
-// SAME repository state — a test double that doesn't preserve that
-// (e.g. two disconnected mocks, one hardcoded to always report .cloud)
-// would pass or fail for the wrong reason, and specifically can't catch
-// the real bug this test guards against: HeosViewModel.refresh()
-// re-reading getCurrentDataSourceMode() after a mode switch so the
-// Settings toggle stays in sync with the repository's actual state.
+// Shared backing store so set/get reflect the same state, like the real repository.
 private actor MockDataSourceModeStore {
     private var mode: DataSourceMode = .cloud
     func set(_ mode: DataSourceMode) { self.mode = mode }
@@ -118,10 +106,7 @@ final class HeosViewModelTests: XCTestCase {
 
         await sut.togglePlayback()
 
-        // Cached rooms mock always returns the same fixed array in this
-        // test double, so this mainly proves togglePlayback() doesn't
-        // crash and re-reads from getCachedRooms — the actual state
-        // flip is covered by RoomsRepositoryImplTests at the Core layer.
+        // Proves it re-reads from getCachedRooms without crashing; state flip covered in Core tests.
         XCTAssertEqual(sut.rooms.count, 1)
     }
 
